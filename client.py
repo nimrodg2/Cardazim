@@ -3,26 +3,22 @@ import sys
 import socket
 import time
 
-import Connection
-import listener
 
 ###########################################################
 ####################### YOUR CODE #########################
 ###########################################################
 
 
-"""def send_data(server_ip, server_port, data):
+def send_data(server_ip, server_port, data):
+    '''
+    Send data to server in address (server_ip, server_port).
+    '''
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((server_ip, server_port))
     msg = data.encode()
     client.send(len(msg).to_bytes(4, 'little') + msg)
     client.close()
-    return"""
-
-
-def send_data(server_ip, server_port, data):
-    with Connection.Connection.connect(server_ip, server_port) as connection:
-        connection.send_message(data.encode())
+    return
 
 
 ###########################################################
