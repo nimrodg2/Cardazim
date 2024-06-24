@@ -4,8 +4,6 @@ import socket
 import threading
 import time
 
-I_should_kms = False
-
 
 # not good at all....
 def get_msg(conn: socket.socket, addr: tuple, lock: threading.Lock) -> None:
@@ -18,32 +16,19 @@ def get_msg(conn: socket.socket, addr: tuple, lock: threading.Lock) -> None:
     print(data)
     conn.close()
     lock.release()
-    if data == "kys":
-        global I_should_kms
-        I_should_kms = True
+    exit()
     return
 
 
-def kms(threads):
-    for t in threads:
-        t.join()
-    exit()
-
-
 def run_server(ip: str, port: int) -> None:
-    global I_should_kms
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((ip, port))
     server_lock = threading.Lock()
-    threads = []
     while True:
         server.listen()
         conn, addr = server.accept()
         t1 = threading.Thread(target=get_msg, args=(conn, addr, server_lock))
         t1.start()
-        threads.append(t1)
-        if I_should_kms:
-            kms(threads)
 
 
 def get_args():
