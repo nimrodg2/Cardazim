@@ -1,5 +1,6 @@
 import argparse
 import sys
+from card import Card
 import socket
 import threading
 import time
@@ -40,8 +41,9 @@ def run_server(ip: str, port: int) -> None:
     with listener.Listener(ip, port) as server:
         while True:
             with server.accept() as connection:
-                print(connection.receive_message())
-
+                new_data = connection.receive_message()
+                new_card = Card.deserialize(new_data)
+                print(new_card)
 
 
 def get_args():
