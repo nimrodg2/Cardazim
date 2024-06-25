@@ -40,7 +40,8 @@ class Connection:
         self.close()
 
 
-with Connection.connect('127.0.0.1', 5000) as connection:
+"""with Connection.connect('127.0.0.1', 5000) as connection:
     print(connection)
     connection.send_message(b'hello')
     connection.receive_message()
+"""

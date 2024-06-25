@@ -23,7 +23,7 @@ class Listener:
 
     def accept(self):
         conn, addr = self.conn.accept()
-        return connection.connection(conn)
+        return Connection.connection(conn)
 
     def __enter__(self):
         return self
@@ -32,6 +32,8 @@ class Listener:
         self.stop()
 
 
+"""
 with Listener(5000, '127. 0.0.1') as listener:
     with listener.accept() as connection:
         pass
+"""

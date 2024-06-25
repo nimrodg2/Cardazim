@@ -1,6 +1,6 @@
 import argparse
 import sys
-from card import Card
+import card
 import socket
 import time
 
@@ -21,7 +21,7 @@ import listener
     return"""
 
 
-def send_data(server_ip, server_port, new_card: Card):
+def send_data(server_ip, server_port, new_card: card.Card):
     new_card.image.encrypt(new_card.solution)
     data = new_card.serialize()
     with Connection.Connection.connect(server_ip, server_port) as connection:
@@ -58,7 +58,7 @@ def main():
     '''
     args = get_args()
     try:
-        new_Card = Card.create_from_path(args.name, args.creator, args.path, args.riddle, args.solution)
+        new_Card = card.Card.create_from_path(args.name, args.creator, args.path, args.riddle, args.solution)
         send_data(args.server_ip, args.server_port, new_Card)
         print('Done.')
     except Exception as error:

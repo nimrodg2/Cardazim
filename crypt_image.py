@@ -8,7 +8,7 @@ from PIL import Image
 
 class CryptImage:
     def __init__(self):
-        self.image = None
+        self.image: Image = None
         self.key_hash = None
 
     @classmethod
