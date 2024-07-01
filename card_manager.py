@@ -64,11 +64,14 @@ class DatabaseManager(CardDriver):
         self.cursor.execute(self.table)
 
     def save(self, card: Card):
-        self.cursor.execute("INSERT INTO" + self.name + "(NAME, CREATOR, IMG_PATH, RIDDLE, SOLUTION) VALUES " + str((card.name, card.creator, card.path, card.riddle, card.solution)))
+        self.cursor.execute("INSERT INTO" + self.name + "(NAME, CREATOR, IMG_PATH, RIDDLE, SOLUTION) VALUES " + str(
+            (card.name, card.creator, card.path, card.riddle, card.solution)))
         self.con.commit()
 
     def load(self, identifier):
-        identifier = identifier[:-2]
+        # is this needed?
+        if identifier[-2] == "_S":
+            identifier = identifier[:-2]
         A = identifier.split("_")
         self.cursor.execute("SELECT * FROM " + self.name + "WHERE NAME = " + A[0] + " AND CREATOR = " + A[1])
         output = self.cursor.fetchone()
@@ -83,6 +86,13 @@ class DatabaseManager(CardDriver):
         output = self.cursor.fetchall()
         return [Card.create_from_path(*entry) for entry in output]
 
+    def Update_solution(self, creator, name, solution):
+        self.cursor.execute(
+            "UPDATE " + + self.name + " SET SOLUTION=" + solution + "WHERE NAME = " + name + " AND CREATOR = " + creator)
+
+    def get_card_something(self, creator, name, riddle):
+        output = self.cursor.execute("SELECT * FROM " + self.name + "WHERE NAME = " + name + " AND CREATOR = " + creator  + " AND RIDDLE = " + riddle)
+        return [Card.create_from_path(*entry) for entry in output]
 
 class CardManager:
     def __init__(self, driver: CardDriver):
@@ -93,3 +103,16 @@ class CardManager:
 
     def load(self, identifier):
         return self.driver.load(identifier)
+
+    def GetCreators(self):
+        return self.driver.GetCreators()
+
+    def GetCreatorCards(self, creator):
+        return self.driver.GetCreatorCards(creator)
+
+    def Update_solution(self, creator, name, solution):
+        return self.driver.Update_solution(creator, name, solution)
+    
+    def get_card_something(self, creator, name, riddle):
+        return self.driver.get_card_something(creator, name, riddle)
+
