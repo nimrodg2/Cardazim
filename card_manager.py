@@ -3,14 +3,32 @@ from typing import Union
 from os import PathLike, mkdir
 import os
 import json
-from crypt_image import CryptImage
-from PIL import Image
+
+from abc import ABC
+
+import sqlite3
 
 
-class CardManager:
+class CardDriver(ABC):
+    def __init__(self):
+        ...
 
+    def save(self, card: Card):
+        ...
+
+    def load(self, identifier):
+        ...
+
+    def GetCreators(self):
+        ...
+
+    def GetCreatorCards(self, creator: str):
+        ...
+
+
+class FilesystemManager(CardDriver):
     def save(self, card: Card, dir_path: Union[str, PathLike] = '.'):
-        path = os.path.join(dir_path, CardManager.generate_identifier(card))
+        path = os.path.join(dir_path, FilesystemManager.generate_identifier(card))
         mkdir(path)
 
         im_path = os.path.join(path, "image.jpg")
@@ -37,7 +55,41 @@ class CardManager:
             return Card.create_from_path(*d.values())
 
 
-b = Card.create_from_path("IRAN", "Nimrod", "Iran.png", "whatever", "whatever")
-a = CardManager()
-a.save(b)
-CardManager.load(CardManager.generate_identifier(b))
+class DatabaseManager(CardDriver):
+    def __init__(self, name: str = "DATABASE"):
+        self.name = name
+        self.con = sqlite3.connect(self.name)
+        self.cursor = self.con.cursor()
+        self.table = "CREATE TABLE DATABASE(NAME VARCHAR(255), CREATOR VARCHAR(255)), IMG_PATH VARCHAR(255), RIDDLE VARCHAR(255), SOLUTION VARCHAR(255)"
+        self.cursor.execute(self.table)
+
+    def save(self, card: Card):
+        self.cursor.execute("INSERT INTO" + self.name + "(NAME, CREATOR, IMG_PATH, RIDDLE, SOLUTION) VALUES " + str((card.name, card.creator, card.path, card.riddle, card.solution)))
+        self.con.commit()
+
+    def load(self, identifier):
+        identifier = identifier[:-2]
+        A = identifier.split("_")
+        self.cursor.execute("SELECT * FROM " + self.name + "WHERE NAME = " + A[0] + " AND CREATOR = " + A[1])
+        output = self.cursor.fetchone()
+        return Card.create_from_path(*output)
+
+    def GetCreators(self):
+        self.cursor.execute("SELECT CREATOR FROM " + self.name)
+        return list(set(self.cursor.fetchall()))
+
+    def GetCreatorCards(self, creator: str):
+        self.cursor.execute("SELECT * FROM " + self.name + "WHERE CREATOR = " + creator)
+        output = self.cursor.fetchall()
+        return [Card.create_from_path(*entry) for entry in output]
+
+
+class CardManager:
+    def __init__(self, driver: CardDriver):
+        self.driver: CardDriver = driver
+
+    def save(self, card: Card):
+        return self.driver.save(card)
+
+    def load(self, identifier):
+        return self.driver.load(identifier)
