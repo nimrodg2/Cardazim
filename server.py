@@ -3,9 +3,7 @@ import sys
 from card import Card
 from card_manager import CardManager
 import os
-import socket
-import threading
-import time
+
 
 import Connection
 import listener
@@ -59,7 +57,7 @@ def get_args():
     parser.add_argument('server_port', type=int,
                         help='the server\'s port')
     parser.add_argument('path', type=str,
-                        help='the server\'s port')
+                        help='the server\'s path')
     return parser.parse_args()
 
 
